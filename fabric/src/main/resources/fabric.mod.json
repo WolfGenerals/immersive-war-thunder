@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "id": "immersive_wt",
+  "version": "${version}",
+  "name": "Immersive War Thunder",
+  "description": "",
+  "authors": [
+    "WolfGenerals"
+  ],
+  "contact": {
+    "homepage": "https://fabricmc.net/",
+    "sources": "https://github.com/FabricMC/fabric-example-mod"
+  },
+  "license": "Insert License Here",
+  "icon": "assets/immersive_wt/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "immersive_wt.fabric.ImmersiveWarThunderFabric"
+    ]
+  },
+  "mixins": [
+    "immersive_wt.mixins.json",
+    "immersive_wt-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.20.1",
+    "architectury": ">=9.1.12"
+  }
+}

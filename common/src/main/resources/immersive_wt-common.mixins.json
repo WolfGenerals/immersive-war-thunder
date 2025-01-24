@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "immersive_wt.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "minVersion": "0.8",
+  "client": [
+  ],
+  "mixins": [
+    "MixinAirplaneEntity",
+    "MixinAircraftEntity"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

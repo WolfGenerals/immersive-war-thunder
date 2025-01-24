@@ -1,0 +1,34 @@
+modLoader = "javafml"
+loaderVersion = "[47,)"
+#issueTrackerURL = ""
+license = "Insert License Here"
+
+[[mods]]
+modId = "immersive_wt"
+version = "${version}"
+displayName = "Immersive War Thunder"
+authors = "WolfGenerals"
+description = '''
+'''
+#logoFile = "assets/immersive_wt/icon.png"
+
+[[dependencies.immersive_wt]]
+modId = "forge"
+mandatory = true
+versionRange = "[47,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.immersive_wt]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.20.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.immersive_wt]]
+modId = "immersive_aircraft"
+mandatory = true
+versionRange = "[1.0.0,)"
+ordering = "NONE"
+side = "BOTH"
