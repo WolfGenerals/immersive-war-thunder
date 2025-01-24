@@ -5,6 +5,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class ForwardSystem implements Systems<Plane> {
     public void progress(@NotNull Plane plane) {
-        plane.velocity = plane.direction.normalize().scale(plane.enginePower);
+        plane.velocity = plane.forwardDirection.normalize().scale(plane.enginePower);
     }
 }

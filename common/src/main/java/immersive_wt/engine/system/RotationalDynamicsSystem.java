@@ -29,16 +29,8 @@ public class RotationalDynamicsSystem implements Systems<Plane> {
         plane.zRot += Math.max(-zRotAbility, Math.min(zRotAbility, plane.zRotTarget));
 
 
-        plane.xRot += plane.GRAVITY_TORQUE * Math.cos(p);
-
-
-        if (plane.onGround) {
-            plane.xRot -= plane.pitch * 0.05;
-            plane.zRot -= plane.roll * 0.05;
-        }
-
-        plane.zRot -= plane.roll*Math.sin(p)*Math.sin(p)*Math.sin(p)*Math.sin(p)*0.1;
-        plane.yRot += plane.roll*Math.sin(p)*Math.sin(p)*Math.sin(p)*Math.sin(p)*0.1*(p>0?1:-1);
+        plane.zRot -= plane.roll * Math.sin(p) * Math.sin(p) * Math.sin(p) * Math.sin(p) * 0.1;
+        plane.yRot += plane.roll * Math.sin(p) * Math.sin(p) * Math.sin(p) * Math.sin(p) * 0.1 * (p > 0 ? 1 : -1);
 
     }
 }

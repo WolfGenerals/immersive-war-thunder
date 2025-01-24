@@ -1,16 +1,15 @@
 package immersive_wt.engine;
 
-import immersive_wt.engine.system.ForwardSystem;
-import immersive_wt.engine.system.KeyBoardDirectControlSystem;
-import immersive_wt.engine.system.Plane;
-import immersive_wt.engine.system.RotationalDynamicsSystem;
+import immersive_wt.engine.system.*;
 
 public class PlanePhysicsEngine {
     public Plane plane = new Plane();
 
     public KeyBoardDirectControlSystem keyBoardDirectControlSystem = new KeyBoardDirectControlSystem();
     public RotationalDynamicsSystem rotationalDynamicsSystem = new RotationalDynamicsSystem();
-    public ForwardSystem forwardSystem = new ForwardSystem();
+    public EngineSystem engineSystem = new EngineSystem();
+    public WingSystem wingSystem = new WingSystem();
+    public GravitySystem gravitySystem = new GravitySystem();
 
 
 
@@ -19,6 +18,8 @@ public class PlanePhysicsEngine {
 
         keyBoardDirectControlSystem.progress(plane);
         rotationalDynamicsSystem.progress(plane);
-        forwardSystem.progress(plane);
+        gravitySystem.progress(plane);
+        engineSystem.progress(plane);
+        wingSystem.progress(plane);
     }
 }

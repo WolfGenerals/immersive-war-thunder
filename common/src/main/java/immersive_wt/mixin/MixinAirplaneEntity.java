@@ -25,6 +25,10 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         prevRoll = roll + delta;
     }
 
+    @Override
+    protected void updateVelocity() {
+    }
+
     @SuppressWarnings("AddedMixinMembersNamePattern")
     @Unique
     public PlanePhysicsEngine planePhysicsEngine = new PlanePhysicsEngine();
@@ -49,7 +53,8 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         // sync
         planePhysicsEngine.plane.position = getPosition(1);
         planePhysicsEngine.plane.velocity = getDeltaMovement();
-        planePhysicsEngine.plane.direction = toVec3d(getForwardDirection()).normalize();
+        planePhysicsEngine.plane.forwardDirection = toVec3d(getForwardDirection()).normalize();
+        planePhysicsEngine.plane.topDirection = toVec3d(getTopDirection()).normalize();
         planePhysicsEngine.plane.roll = getRoll();
         planePhysicsEngine.plane.pitch = getXRot();
         planePhysicsEngine.plane.yaw = getYRot();
