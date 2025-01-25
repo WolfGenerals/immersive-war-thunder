@@ -8,18 +8,21 @@ public class PlanePhysicsEngine {
 
     public Tail tail = new Tail(4);
     public Aileron aileron = new Aileron(6);
-    public Engine engine = new Engine(0.015);
+    public FineTuningTorque fineTuningTorque = new FineTuningTorque(0.1);
+    public Engine engine = new Engine(0.02);
 
     protected TorqueModule[] torqueModules = new TorqueModule[]{
             tail,
             aileron,
             new Ground(),
-            new RollToYaw(),
+            fineTuningTorque,
+            new GravityTorque(0.2)
     };
     protected ForceModule[] forceModules = new ForceModule[]{
             engine,
-            new Wing(0.008, 0.2),
-            new Gravity()
+            new Wing(0.01, 0.1),
+            new Gravity(),
+            new Wheel(0.01),
     };
 
 

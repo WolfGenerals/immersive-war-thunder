@@ -10,7 +10,9 @@ import immersive_wt.engine.Torque;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -21,12 +23,15 @@ import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 
+import static org.joml.Math.*;
+
 @Mixin(AirplaneEntity.class)
 abstract public class MixinAirplaneEntity extends AircraftEntity {
 
     public MixinAirplaneEntity(EntityType<? extends AircraftEntity> entityType, Level world, boolean canExplodeOnCrash) {
         super(entityType, world, canExplodeOnCrash);
     }
+
     // 解除视角角度限制
     @Override
     public void copyEntityData(@NotNull Entity entity) {
@@ -34,6 +39,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         entity.setYRot(entity.getYRot());
         entity.setYHeadRot(entity.getYRot());
     }
+
     // 防止视角随着飞机改变
     @Override
     public void positionRider(@NotNull Entity passenger, @NotNull MoveFunction positionUpdater) {
@@ -77,11 +83,18 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
     @Override
     public void setZRot(float rot) {
-        float delta = roll - rot;
         float loops = (float) (Math.floor((rot + 180f) / 360f) * 360f);
         rot -= loops;
+        prevRoll -= loops;
         roll = rot;
-        prevRoll = roll + delta;
+    }
+
+    @Override
+    public void setYRot(float yaw) {
+        float loops = (float) (Math.floor((yaw + 180f) / 360f) * 360f);
+        yaw -= loops;
+        yRotO -= loops;
+        super.setYRot(yaw);
     }
 
     @Override
@@ -96,8 +109,45 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
     @Override
     protected void updateController() {
         PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
-        planePhysicsEngine.tail.setControl(pressingInterpolatedZ.getSmooth());
-        planePhysicsEngine.aileron.setControl(pressingInterpolatedX.getSmooth());
+
+        // 获得玩家
+        LivingEntity passenger = getControllingPassenger();
+        if (passenger == null) return;
+        if (!(passenger instanceof Player player)) return;
+        // 鼠标控制
+        float playerXRot = player.getXRot();
+        float playerYRot = player.getYRot();
+        float planeXRot = getXRot();
+        float planeYRot = getYRot();
+
+        float deltaX = Mth.degreesDifference(planeXRot, playerXRot); //mc自带的pitch向下
+        float deltaY = Mth.degreesDifference(planeYRot, playerYRot);//mc自带的yaw向右
+
+        double controlPitch = 0;
+        double controlRoll = 0;
+
+        float r = toRadians(getRoll());
+        controlPitch += (-deltaX * cos(r)+ deltaY * sin(r)) / 45; //
+        controlPitch = Mth.clamp(controlPitch, -1, 1);
+        controlPitch *= 1-Mth.clamp(abs(deltaX*sin(r)+deltaY*cos(r))/45, 0, 1);// 非pitch方向惩罚
+
+        double targetRoll = toDegrees(atan2(deltaY, -deltaX+5));
+        if (!Double.isFinite(targetRoll)) targetRoll = 0;
+        controlRoll += (targetRoll - getRoll())/45;
+        controlRoll = Mth.clamp(controlRoll, -1, 1);
+        controlRoll *= Mth.clamp(sqrt(deltaX*deltaX+deltaY*deltaY)/30,0.3,1);
+
+        planePhysicsEngine.tail.setControl(controlPitch);
+        planePhysicsEngine.aileron.setControl(controlRoll);
+        planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
+
+        // 键盘控制
+        if (movementX != 0 || movementZ != 0) {
+            planePhysicsEngine.tail.setControl(-movementZ);
+            planePhysicsEngine.aileron.setControl(-movementX);
+        }
+
+
         planePhysicsEngine.engine.setPower(getEnginePower());
 
         if (movementY != 0) {
@@ -111,6 +161,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
     @Override
     public void tick() {
+        prevRoll = getRoll();
         EngineVehicleAccessor engineVehicle = (EngineVehicleAccessor) this;
         engineVehicle.engineVehicle$tick();
 
@@ -118,7 +169,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
 
         if (onGround())
-            onGroundTimeRemaining = 10;
+            onGroundTimeRemaining = 30;
         onGroundTimeRemaining--;
         // sync
         planePhysicsEngine.plane.position = getPosition(1);
