@@ -16,6 +16,9 @@ public class Wing implements ForceModule {
     @Override
     public @NotNull Vec3 force(@NotNull Plane plane) {
         double forwardVelocity = plane.getVelocity().dot(plane.getForwardDirection());
+        if (forwardVelocity < 0) {
+            forwardVelocity = 0;
+        }
         Vec3 drag = plane.getForwardDirection().scale(forwardVelocity)
                 .scale(-forwardDrag);
         Vec3 otherDrag = plane.getVelocity()

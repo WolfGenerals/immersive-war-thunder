@@ -11,9 +11,9 @@ public class Ground implements TorqueModule {
         if (!plane.onGround) return new Torque(0, 0, 0);
 
         return new Torque(
-                -plane.pitch*0.1,
+                -plane.pitch *0.03,
                 0,
-                -plane.roll*0.1
+                -plane.roll*0.2
         );
     }
 }

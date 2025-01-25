@@ -169,7 +169,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
 
         if (onGround())
-            onGroundTimeRemaining = 10;
+            onGroundTimeRemaining = 30;
         onGroundTimeRemaining--;
         // sync
         planePhysicsEngine.plane.position = getPosition(1);
