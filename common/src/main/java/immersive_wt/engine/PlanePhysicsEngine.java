@@ -14,7 +14,6 @@ public class PlanePhysicsEngine {
             tail,
             aileron,
             new Ground(),
-            new RollToYaw(),
     };
     protected ForceModule[] forceModules = new ForceModule[]{
             engine,
