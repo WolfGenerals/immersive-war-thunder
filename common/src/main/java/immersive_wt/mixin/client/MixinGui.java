@@ -29,10 +29,6 @@ abstract public class MixinGui {
     @Final
     @Shadow
     private Minecraft minecraft;
-    @Shadow
-    private int screenWidth;
-    @Shadow
-    private int screenHeight;
 
     @Inject(method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;)V", at = @At("HEAD"))
     private void ic_air$renderInject(GuiGraphics guiGraphics, CallbackInfo ci) {
@@ -46,7 +42,7 @@ abstract public class MixinGui {
         Vec3 crosshairWorldPos = plane.getViewVector(tickDelta)
                 .scale(50)
                 .add(plane.getPosition(tickDelta));
-        Vec3 circleWorldPos = minecraft.player.getForward()
+        Vec3 circleWorldPos = minecraft.player.getViewVector(tickDelta)
                 .scale(50)
                 .add(plane.getPosition(tickDelta));
 
