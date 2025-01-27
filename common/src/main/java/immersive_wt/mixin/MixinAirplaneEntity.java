@@ -112,47 +112,53 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
         // 获得玩家
         LivingEntity passenger = getControllingPassenger();
-        if (passenger == null) return;
-        if (!(passenger instanceof Player player)) return;
-        // 鼠标控制
-        float playerXRot = player.getXRot();
-        float playerYRot = player.getYRot();
-        float planeXRot = getXRot();
-        float planeYRot = getYRot();
+        if (passenger instanceof Player player) {
+            // 鼠标控制
+            float playerXRot = player.getXRot();
+            float playerYRot = player.getYRot();
+            float planeXRot = getXRot();
+            float planeYRot = getYRot();
 
-        float deltaX = Mth.degreesDifference(planeXRot, playerXRot); //mc自带的pitch向下
-        float deltaY = Mth.degreesDifference(planeYRot, playerYRot);//mc自带的yaw向右
+            float deltaX = Mth.degreesDifference(planeXRot, playerXRot); //mc自带的pitch向下
+            float deltaY = Mth.degreesDifference(planeYRot, playerYRot);//mc自带的yaw向右
 
-        double controlPitch = 0;
-        double controlRoll = 0;
+            double controlPitch = 0;
+            double controlRoll = 0;
 
-        float r = toRadians(getRoll());
-        controlPitch += (-deltaX * cos(r)+ deltaY * sin(r)) / 45; //
-        controlPitch = Mth.clamp(controlPitch, -1, 1);
-        controlPitch *= 1-Mth.clamp(abs(deltaX*sin(r)+deltaY*cos(r))/45, 0, 1);// 非pitch方向惩罚
+            float r = toRadians(getRoll());
+            controlPitch += (-deltaX * cos(r)+ deltaY * sin(r)) / 45; //
+            controlPitch = Mth.clamp(controlPitch, -1, 1);
+            controlPitch *= 1-Mth.clamp(abs(deltaX*sin(r)+deltaY*cos(r))/45, 0, 1);// 非pitch方向惩罚
 
-        double targetRoll = toDegrees(atan2(deltaY, -deltaX+5));
-        if (!Double.isFinite(targetRoll)) targetRoll = 0;
-        controlRoll += (targetRoll - getRoll())/45;
-        controlRoll = Mth.clamp(controlRoll, -1, 1);
-        controlRoll *= Mth.clamp(sqrt(deltaX*deltaX+deltaY*deltaY)/30,0.3,1);
+            double targetRoll = toDegrees(atan2(deltaY, -deltaX+5));
+            if (!Double.isFinite(targetRoll)) targetRoll = 0;
+            controlRoll += (targetRoll - getRoll())/45;
+            controlRoll = Mth.clamp(controlRoll, -1, 1);
+            controlRoll *= Mth.clamp(sqrt(deltaX*deltaX+deltaY*deltaY)/30,0.3,1);
 
-        planePhysicsEngine.tail.setControl(controlPitch);
-        planePhysicsEngine.aileron.setControl(controlRoll);
-        planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
 
-        // 键盘控制
-        if (movementX != 0 || movementZ != 0) {
-            planePhysicsEngine.tail.setControl(-movementZ);
-            planePhysicsEngine.aileron.setControl(-movementX);
+
+            // 键盘控制
+            if (movementX != 0 || movementZ != 0) {
+                planePhysicsEngine.tail.setControl(-movementZ);
+                planePhysicsEngine.aileron.setControl(-movementX);
+                planePhysicsEngine.fineTuningTorque.setControl(0,0);
+            }else {
+                planePhysicsEngine.tail.setControl(controlPitch);
+                planePhysicsEngine.aileron.setControl(controlRoll);
+                planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
+            }
+        }else {
+            // 没有玩家 舵面归零
+            planePhysicsEngine.tail.setControl(0);
+            planePhysicsEngine.aileron.setControl(0);
+            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
         }
-
-
-        planePhysicsEngine.engine.setPower(getEnginePower());
 
         if (movementY != 0) {
             setEngineTarget(Math.max(0.0f, Math.min(1.0f, getEngineTarget() + 0.1f * movementY)));
         }
+        planePhysicsEngine.engine.setPower(getEnginePower());
     }
 
     @SuppressWarnings("AddedMixinMembersNamePattern")
