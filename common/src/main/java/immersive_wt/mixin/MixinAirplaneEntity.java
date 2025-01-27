@@ -195,9 +195,13 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
         Torque torque = planePhysicsEngine.torque();
         Vec3 force = planePhysicsEngine.force();
-        setXRot(getXRot() + (float) torque.xRot);
-        setYRot(getYRot() + (float) torque.yRot);
-        setZRot(getRoll() + (float) torque.zRot);
-        setDeltaMovement(getDeltaMovement().add(force));
+        //检查力是否有效
+        if (Double.isFinite(torque.xRot) && Double.isFinite(torque.yRot) && Double.isFinite(torque.zRot)
+                && Double.isFinite(force.x) && Double.isFinite(force.y) && Double.isFinite(force.z)) {
+            setXRot(getXRot() + (float) torque.xRot);
+            setYRot(getYRot() + (float) torque.yRot);
+            setZRot(getRoll() + (float) torque.zRot);
+            setDeltaMovement(getDeltaMovement().add(force));
+        }
     }
 }
