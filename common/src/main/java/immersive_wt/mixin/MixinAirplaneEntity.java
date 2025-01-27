@@ -118,7 +118,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         if (movementY != 0) {
             setEngineTarget(Math.max(0.0f, Math.min(1.0f, getEngineTarget() + 0.1f * movementY)));
         }
-        planePhysicsEngine.engine.setPower(getEnginePower());
+        planePhysicsEngine.engine.setPower(getEnginePower() + getBoost() > 0 ? 1.5 : 0);
         // 获得乘客
         LivingEntity passenger = getControllingPassenger();
 
