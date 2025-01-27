@@ -17,6 +17,9 @@
   "entrypoints": {
     "main": [
       "immersive_wt.fabric.ImmersiveWarThunderFabric"
+    ],
+    "client": [
+      "immersive_wt.fabric.ImmersiveWarThunderFabricClient"
     ]
   },
   "mixins": [

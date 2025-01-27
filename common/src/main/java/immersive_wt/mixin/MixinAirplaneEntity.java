@@ -4,6 +4,7 @@ import immersive_aircraft.entity.AircraftEntity;
 import immersive_aircraft.entity.AirplaneEntity;
 import immersive_aircraft.entity.misc.PositionDescriptor;
 import immersive_wt.EngineVehicleAccessor;
+import immersive_wt.KeyBindings;
 import immersive_wt.engine.EngineManager;
 import immersive_wt.engine.PlanePhysicsEngine;
 import immersive_wt.engine.Torque;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 
@@ -26,6 +28,11 @@ import static org.joml.Math.*;
 
 @Mixin(AirplaneEntity.class)
 abstract public class MixinAirplaneEntity extends AircraftEntity {
+
+    @Unique
+    private float immersive_war_thunder$playerXRot;
+    @Unique
+    private float immersive_war_thunder$playerYRot;
 
     public MixinAirplaneEntity(EntityType<? extends AircraftEntity> entityType, Level world, boolean canExplodeOnCrash) {
         super(entityType, world, canExplodeOnCrash);
@@ -108,55 +115,61 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
     @Override
     protected void updateController() {
         PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
-
-        // 获得玩家
-        LivingEntity passenger = getControllingPassenger();
-        if (passenger instanceof Player player) {
-            // 鼠标控制
-            float playerXRot = player.getXRot();
-            float playerYRot = player.getYRot();
-            float planeXRot = getXRot();
-            float planeYRot = getYRot();
-
-            float deltaX = Mth.degreesDifference(planeXRot, playerXRot); //mc自带的pitch向下
-            float deltaY = Mth.degreesDifference(planeYRot, playerYRot);//mc自带的yaw向右
-
-            double controlPitch = 0;
-            double controlRoll = 0;
-
-            float r = toRadians(getRoll());
-            controlPitch += (-deltaX * cos(r) + deltaY * sin(r)) / 45; //
-            controlPitch = Mth.clamp(controlPitch, -1, 1);
-            controlPitch *= 1 - Mth.clamp(abs(deltaX * sin(r) + deltaY * cos(r)) / 45, 0, 1);// 非pitch方向惩罚
-
-            double targetRoll = toDegrees(atan2(deltaY, -deltaX + 5));
-            if (!Double.isFinite(targetRoll)) targetRoll = 0;
-            controlRoll += (targetRoll - getRoll()) / 45;
-            controlRoll = Mth.clamp(controlRoll, -1, 1);
-            controlRoll *= Mth.clamp(sqrt(deltaX * deltaX + deltaY * deltaY) / 30, 0.3, 1);
-
-
-            // 键盘控制
-            if (movementX != 0 || movementZ != 0) {
-                planePhysicsEngine.tail.setControl(-movementZ);
-                planePhysicsEngine.aileron.setControl(-movementX);
-                planePhysicsEngine.fineTuningTorque.setControl(0, 0);
-            } else {
-                planePhysicsEngine.tail.setControl(controlPitch);
-                planePhysicsEngine.aileron.setControl(controlRoll);
-                planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
-            }
-        } else {
-            // 没有玩家 舵面归零
-            planePhysicsEngine.tail.setControl(0);
-            planePhysicsEngine.aileron.setControl(0);
-            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
-        }
-
         if (movementY != 0) {
             setEngineTarget(Math.max(0.0f, Math.min(1.0f, getEngineTarget() + 0.1f * movementY)));
         }
         planePhysicsEngine.engine.setPower(getEnginePower());
+        // 获得乘客
+        LivingEntity passenger = getControllingPassenger();
+
+        // 无玩家控制
+        if (!(passenger instanceof Player player)) {
+            // 没有玩家 舵面归零
+            planePhysicsEngine.tail.setControl(0);
+            planePhysicsEngine.aileron.setControl(0);
+            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            return;
+        }
+        // 键盘有输入或自由视角
+        if (movementX != 0 || movementZ != 0) {
+            // 键盘控制
+            planePhysicsEngine.tail.setControl(-movementZ);
+            planePhysicsEngine.aileron.setControl(-movementX);
+            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            return;
+        }
+
+        // 玩家视线控制
+        if (!KeyBindings.freeView.isDown()) {
+            // 只在不是自由视角时才更新控制
+            immersive_war_thunder$playerXRot = player.getXRot();
+            immersive_war_thunder$playerYRot = player.getYRot();
+        }
+        float planeXRot = getXRot();
+        float planeYRot = getYRot();
+
+        float deltaX = Mth.degreesDifference(planeXRot, immersive_war_thunder$playerXRot); //mc自带的pitch向下
+        float deltaY = Mth.degreesDifference(planeYRot, immersive_war_thunder$playerYRot);//mc自带的yaw向右
+
+        double controlPitch = 0;
+        double controlRoll = 0;
+
+        float r = toRadians(getRoll());
+        controlPitch += (-deltaX * cos(r) + deltaY * sin(r)) / 45; //
+        controlPitch = Mth.clamp(controlPitch, -1, 1);
+        controlPitch *= 1 - Mth.clamp(abs(deltaX * sin(r) + deltaY * cos(r)) / 45, 0, 1);// 非pitch方向惩罚
+
+        double targetRoll = toDegrees(atan2(deltaY, -deltaX + 5));
+        if (!Double.isFinite(targetRoll)) targetRoll = 0;
+        controlRoll += (targetRoll - getRoll()) / 45;
+        controlRoll = Mth.clamp(controlRoll, -1, 1);
+        controlRoll *= Mth.clamp(sqrt(deltaX * deltaX + deltaY * deltaY) / 30, 0.3, 1);
+
+        planePhysicsEngine.tail.setControl(controlPitch);
+        planePhysicsEngine.aileron.setControl(controlRoll);
+        planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
+
+
     }
 
 
