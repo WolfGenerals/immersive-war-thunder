@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 public class Gravity implements ForceModule {
     @Override
     public @NotNull Vec3 force(@NotNull Plane plane) {
-        if (plane.onGround)
-            return Vec3.ZERO;
+//        if (plane.onGround)
+//            return Vec3.ZERO;
         return new Vec3(0, -0.02, 0);
     }
 }

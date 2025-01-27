@@ -8,12 +8,12 @@ import org.jetbrains.annotations.NotNull;
 public class Ground implements TorqueModule {
     @Override
     public @NotNull Torque torque(@NotNull Plane plane) {
-        if (!plane.onGround) return new Torque(0, 0, 0);
+        if (!plane.isOnGround()) return new Torque(0, 0, 0);
 
         return new Torque(
-                -plane.pitch *0.03,
+                -plane.pitch *0.1,
                 0,
-                -plane.roll*0.2
+                -plane.roll*0.5
         );
     }
 }

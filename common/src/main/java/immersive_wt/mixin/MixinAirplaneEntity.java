@@ -11,7 +11,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
 
@@ -161,9 +159,6 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         planePhysicsEngine.engine.setPower(getEnginePower());
     }
 
-    @SuppressWarnings("AddedMixinMembersNamePattern")
-    @Unique
-    protected int onGroundTimeRemaining = 31;
 
     @Override
     public void tick() {
@@ -173,15 +168,6 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
         PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
 
-
-        if (onGround())
-            onGroundTimeRemaining = 30;
-        if (onGroundTimeRemaining > 30) {
-            // 在飞机生成时略微抬高，触发运动时的setOnGround
-            move(MoverType.SELF, new Vec3(0, 0.1, 0));
-            onGroundTimeRemaining = 0;
-        }
-        onGroundTimeRemaining--;
         // sync
         planePhysicsEngine.plane.position = getPosition(1);
         planePhysicsEngine.plane.velocity = getDeltaMovement();
@@ -190,8 +176,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         planePhysicsEngine.plane.roll = getRoll();
         planePhysicsEngine.plane.pitch = getXRot();
         planePhysicsEngine.plane.yaw = getYRot();
-//        planePhysicsEngine.plane.onGround = onGround();
-        planePhysicsEngine.plane.onGround = onGroundTimeRemaining > 0;
+        planePhysicsEngine.plane.setOnGround(onGround());
 
         Torque torque = planePhysicsEngine.torque();
         Vec3 force = planePhysicsEngine.force();

@@ -22,7 +22,7 @@ public class Aileron implements TorqueModule {
     }
 
     public @NotNull Torque torque(@NotNull Plane plane) {
-        if (plane.onGround)
+        if (plane.isOnGround())
             // 在地面时，改为使用轮子，直接控制yaw
             return new Torque(0, plane.getVelocity().length() * efficiency * control, 0);
 
