@@ -165,6 +165,9 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         controlRoll = Mth.clamp(controlRoll, -1, 1);
         controlRoll *= Mth.clamp(sqrt(deltaX * deltaX + deltaY * deltaY) / 30, 0.3, 1);
 
+        if (planePhysicsEngine.plane.isOnGround())
+            controlRoll = deltaY / 30;
+
         planePhysicsEngine.tail.setControl(controlPitch);
         planePhysicsEngine.aileron.setControl(controlRoll);
         planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);

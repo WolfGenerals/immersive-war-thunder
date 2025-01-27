@@ -6,7 +6,7 @@ import immersive_wt.engine.TorqueModule;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
-import static java.lang.Math.*;
+import static java.lang.Math.sqrt;
 
 public class Aileron implements TorqueModule {
     protected double efficiency;
@@ -18,13 +18,13 @@ public class Aileron implements TorqueModule {
 
     // 向右滚转为正
     public void setControl(double control) {
-        this.control = Mth.clamp(control, -1, 1)* 0.2 + this.control * 0.8;
+        this.control = Mth.clamp(control, -1, 1) * 0.2 + this.control * 0.8;
     }
 
     public @NotNull Torque torque(@NotNull Plane plane) {
         if (plane.isOnGround())
             // 在地面时，改为使用轮子，直接控制yaw
-            return new Torque(0, plane.getVelocity().length() * efficiency * control, 0);
+            return new Torque(0, 3 * control, 0);
 
         return new Torque(
                 0, 0,
