@@ -23,6 +23,7 @@ public class FineTuningTorque implements TorqueModule {
 
     @Override
     public @NotNull Torque torque(@NotNull Plane plane) {
+        if (plane.onGround) return new Torque(0, 0, 0);
         return new Torque(
                 sqrt(plane.getVelocity().length()) * efficiency * x,
                 sqrt(plane.getVelocity().length()) * efficiency * y,

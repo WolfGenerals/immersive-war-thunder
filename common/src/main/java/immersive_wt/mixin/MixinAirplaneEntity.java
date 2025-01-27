@@ -11,6 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -126,29 +127,28 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
             double controlRoll = 0;
 
             float r = toRadians(getRoll());
-            controlPitch += (-deltaX * cos(r)+ deltaY * sin(r)) / 45; //
+            controlPitch += (-deltaX * cos(r) + deltaY * sin(r)) / 45; //
             controlPitch = Mth.clamp(controlPitch, -1, 1);
-            controlPitch *= 1-Mth.clamp(abs(deltaX*sin(r)+deltaY*cos(r))/45, 0, 1);// 非pitch方向惩罚
+            controlPitch *= 1 - Mth.clamp(abs(deltaX * sin(r) + deltaY * cos(r)) / 45, 0, 1);// 非pitch方向惩罚
 
-            double targetRoll = toDegrees(atan2(deltaY, -deltaX+5));
+            double targetRoll = toDegrees(atan2(deltaY, -deltaX + 5));
             if (!Double.isFinite(targetRoll)) targetRoll = 0;
-            controlRoll += (targetRoll - getRoll())/45;
+            controlRoll += (targetRoll - getRoll()) / 45;
             controlRoll = Mth.clamp(controlRoll, -1, 1);
-            controlRoll *= Mth.clamp(sqrt(deltaX*deltaX+deltaY*deltaY)/30,0.3,1);
-
+            controlRoll *= Mth.clamp(sqrt(deltaX * deltaX + deltaY * deltaY) / 30, 0.3, 1);
 
 
             // 键盘控制
             if (movementX != 0 || movementZ != 0) {
                 planePhysicsEngine.tail.setControl(-movementZ);
                 planePhysicsEngine.aileron.setControl(-movementX);
-                planePhysicsEngine.fineTuningTorque.setControl(0,0);
-            }else {
+                planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            } else {
                 planePhysicsEngine.tail.setControl(controlPitch);
                 planePhysicsEngine.aileron.setControl(controlRoll);
                 planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
             }
-        }else {
+        } else {
             // 没有玩家 舵面归零
             planePhysicsEngine.tail.setControl(0);
             planePhysicsEngine.aileron.setControl(0);
@@ -163,7 +163,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
     @SuppressWarnings("AddedMixinMembersNamePattern")
     @Unique
-    protected int onGroundTimeRemaining = 0;
+    protected int onGroundTimeRemaining = 31;
 
     @Override
     public void tick() {
@@ -176,6 +176,11 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
         if (onGround())
             onGroundTimeRemaining = 30;
+        if (onGroundTimeRemaining > 30) {
+            // 在飞机生成时略微抬高，触发运动时的setOnGround
+            move(MoverType.SELF, new Vec3(0, 0.1, 0));
+            onGroundTimeRemaining = 0;
+        }
         onGroundTimeRemaining--;
         // sync
         planePhysicsEngine.plane.position = getPosition(1);
