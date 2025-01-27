@@ -4,6 +4,7 @@ import immersive_aircraft.entity.AircraftEntity;
 import immersive_aircraft.entity.AirplaneEntity;
 import immersive_aircraft.entity.misc.PositionDescriptor;
 import immersive_wt.EngineVehicleAccessor;
+import immersive_wt.KeyBindings;
 import immersive_wt.engine.EngineManager;
 import immersive_wt.engine.PlanePhysicsEngine;
 import immersive_wt.engine.Torque;
@@ -27,6 +28,11 @@ import static org.joml.Math.*;
 
 @Mixin(AirplaneEntity.class)
 abstract public class MixinAirplaneEntity extends AircraftEntity {
+
+    @Unique
+    private float immersive_war_thunder$playerXRot;
+    @Unique
+    private float immersive_war_thunder$playerYRot;
 
     public MixinAirplaneEntity(EntityType<? extends AircraftEntity> entityType, Level world, boolean canExplodeOnCrash) {
         super(entityType, world, canExplodeOnCrash);
@@ -109,55 +115,66 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
     @Override
     protected void updateController() {
         PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
-
-        // 获得玩家
+        if (movementY != 0) {
+            setEngineTarget(Math.max(0.0f, Math.min(1.0f, getEngineTarget() + 0.1f * movementY)));
+        }
+        planePhysicsEngine.engine.setPower(getEnginePower() + getBoost() > 0 ? 1.5 : 0);
+        // 获得乘客
         LivingEntity passenger = getControllingPassenger();
-        if (passenger == null) return;
-        if (!(passenger instanceof Player player)) return;
-        // 鼠标控制
-        float playerXRot = player.getXRot();
-        float playerYRot = player.getYRot();
+
+        // 无玩家控制
+        if (!(passenger instanceof Player player)) {
+            // 没有玩家 舵面归零
+            planePhysicsEngine.tail.setControl(0);
+            planePhysicsEngine.aileron.setControl(0);
+            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            return;
+        }
+        // 键盘有输入或自由视角
+        if (movementX != 0 || movementZ != 0) {
+            // 键盘控制
+            planePhysicsEngine.tail.setControl(-movementZ);
+            planePhysicsEngine.aileron.setControl(-movementX);
+            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            return;
+        }
+
+        // 玩家视线控制
+        if (!KeyBindings.freeView.isDown()) {
+            // 只在不是自由视角时才更新控制
+            immersive_war_thunder$playerXRot = player.getXRot();
+            immersive_war_thunder$playerYRot = player.getYRot();
+        }
         float planeXRot = getXRot();
         float planeYRot = getYRot();
 
-        float deltaX = Mth.degreesDifference(planeXRot, playerXRot); //mc自带的pitch向下
-        float deltaY = Mth.degreesDifference(planeYRot, playerYRot);//mc自带的yaw向右
+        float deltaX = Mth.degreesDifference(planeXRot, immersive_war_thunder$playerXRot); //mc自带的pitch向下
+        float deltaY = Mth.degreesDifference(planeYRot, immersive_war_thunder$playerYRot);//mc自带的yaw向右
 
         double controlPitch = 0;
         double controlRoll = 0;
 
         float r = toRadians(getRoll());
-        controlPitch += (-deltaX * cos(r)+ deltaY * sin(r)) / 45; //
+        controlPitch += (-deltaX * cos(r) + deltaY * sin(r)) / 45; //
         controlPitch = Mth.clamp(controlPitch, -1, 1);
-        controlPitch *= 1-Mth.clamp(abs(deltaX*sin(r)+deltaY*cos(r))/45, 0, 1);// 非pitch方向惩罚
+        controlPitch *= 1 - Mth.clamp(abs(deltaX * sin(r) + deltaY * cos(r)) / 45, 0, 1);// 非pitch方向惩罚
 
-        double targetRoll = toDegrees(atan2(deltaY, -deltaX+5));
+        double targetRoll = toDegrees(atan2(deltaY, -deltaX + 5));
         if (!Double.isFinite(targetRoll)) targetRoll = 0;
-        controlRoll += (targetRoll - getRoll())/45;
+        controlRoll += (targetRoll - getRoll()) / 45;
         controlRoll = Mth.clamp(controlRoll, -1, 1);
-        controlRoll *= Mth.clamp(sqrt(deltaX*deltaX+deltaY*deltaY)/30,0.3,1);
+        controlRoll *= Mth.clamp(sqrt(deltaX * deltaX + deltaY * deltaY) / 30, 0.3, 1);
+
+        if (planePhysicsEngine.plane.isOnGround())
+            controlRoll = deltaY / 30;
 
         planePhysicsEngine.tail.setControl(controlPitch);
         planePhysicsEngine.aileron.setControl(controlRoll);
         planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
 
-        // 键盘控制
-        if (movementX != 0 || movementZ != 0) {
-            planePhysicsEngine.tail.setControl(-movementZ);
-            planePhysicsEngine.aileron.setControl(-movementX);
-        }
 
-
-        planePhysicsEngine.engine.setPower(getEnginePower());
-
-        if (movementY != 0) {
-            setEngineTarget(Math.max(0.0f, Math.min(1.0f, getEngineTarget() + 0.1f * movementY)));
-        }
     }
 
-    @SuppressWarnings("AddedMixinMembersNamePattern")
-    @Unique
-    protected int onGroundTimeRemaining = 0;
 
     @Override
     public void tick() {
@@ -167,10 +184,6 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
         PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
 
-
-        if (onGround())
-            onGroundTimeRemaining = 30;
-        onGroundTimeRemaining--;
         // sync
         planePhysicsEngine.plane.position = getPosition(1);
         planePhysicsEngine.plane.velocity = getDeltaMovement();
@@ -179,14 +192,17 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         planePhysicsEngine.plane.roll = getRoll();
         planePhysicsEngine.plane.pitch = getXRot();
         planePhysicsEngine.plane.yaw = getYRot();
-//        planePhysicsEngine.plane.onGround = onGround();
-        planePhysicsEngine.plane.onGround = onGroundTimeRemaining > 0;
+        planePhysicsEngine.plane.setOnGround(onGround());
 
         Torque torque = planePhysicsEngine.torque();
         Vec3 force = planePhysicsEngine.force();
-        setXRot(getXRot() + (float) torque.xRot);
-        setYRot(getYRot() + (float) torque.yRot);
-        setZRot(getRoll() + (float) torque.zRot);
-        setDeltaMovement(getDeltaMovement().add(force));
+        //检查力是否有效
+        if (Double.isFinite(torque.xRot) && Double.isFinite(torque.yRot) && Double.isFinite(torque.zRot)
+                && Double.isFinite(force.x) && Double.isFinite(force.y) && Double.isFinite(force.z)) {
+            setXRot(getXRot() + (float) torque.xRot);
+            setYRot(getYRot() + (float) torque.yRot);
+            setZRot(getRoll() + (float) torque.zRot);
+            setDeltaMovement(getDeltaMovement().add(force));
+        }
     }
 }

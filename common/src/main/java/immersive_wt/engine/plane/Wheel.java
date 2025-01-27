@@ -14,9 +14,9 @@ public class Wheel implements ForceModule {
 
     @Override
     public @NotNull Vec3 force(@NotNull Plane plane) {
-        if (!plane.onGround) return Vec3.ZERO;
+        if (!plane.isOnGround()) return Vec3.ZERO;
         Vec3 horizontalVelocity = plane.getVelocity()
                 .subtract(0, plane.getVelocity().y, 0);
-        return horizontalVelocity.scale(-fraction);
+        return  horizontalVelocity.normalize().scale(-Math.min(fraction,horizontalVelocity.length()));
     }
 }

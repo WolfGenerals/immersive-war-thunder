@@ -56,3 +56,14 @@ allprojects {
         withSourcesJar()
     }
 }
+
+// 定义复制文件的任务
+task copyOutputFiles(type: Copy) {
+    // 依赖于clean和build任务
+    dependsOn clean, build
+
+    // 指定要复制的文件
+    from 'fabric/build/libs', 'forge/build/libs' // 假设子项目的输出文件在subproject/build/libs目录
+    // 指定复制到的目标目录
+    into 'build/mods' // 将文件复制到destination_directory目录
+}

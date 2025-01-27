@@ -7,7 +7,7 @@ public class Plane {
     public Vec3 position = Vec3.ZERO;
     public Vec3 velocity = Vec3.ZERO;
     public double roll, pitch, yaw;
-    public boolean onGround;
+    private int onGround;
     public Vec3 forwardDirection;
     public Vec3 topDirection;
 
@@ -25,5 +25,14 @@ public class Plane {
 
     public Vec3 getPosition() {
         return new Vec3(position.x(), position.y(), position.z());
+    }
+
+    public boolean isOnGround() {
+        return onGround > 0;
+    }
+
+    public void setOnGround(boolean onGround) {
+        if (onGround) this.onGround = 5;
+        else this.onGround--;
     }
 }

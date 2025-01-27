@@ -15,7 +15,8 @@ public class Engine implements ForceModule {
     }
 
     public void setPower(double power) {
-        this.power = Math.min(1, Math.max(0, power));
+//        this.power = Math.min(1, Math.max(0, power));
+        this.power = Math.max(0, power);
     }
     @SuppressWarnings("unused")
     public double getPower() {
