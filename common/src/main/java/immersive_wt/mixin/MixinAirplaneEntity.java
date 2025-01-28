@@ -140,7 +140,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         }
 
         // 玩家视线控制
-        if (!KeyBindings.freeView.isDown()) {
+        if (!KeyBindings.getFreeView()) {
             // 只在不是自由视角时才更新控制
             immersive_war_thunder$playerXRot = player.getXRot();
             immersive_war_thunder$playerYRot = player.getYRot();
