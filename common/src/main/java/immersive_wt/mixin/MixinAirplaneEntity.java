@@ -5,9 +5,10 @@ import immersive_aircraft.entity.AirplaneEntity;
 import immersive_aircraft.entity.misc.PositionDescriptor;
 import immersive_wt.EngineVehicleAccessor;
 import immersive_wt.KeyBindings;
-import immersive_wt.engine.EngineManager;
-import immersive_wt.engine.PlanePhysicsEngine;
-import immersive_wt.engine.Torque;
+import immersive_wt.physics.Plane;
+import immersive_wt.physics.PlaneManager;
+import immersive_wt.physics.Torque;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -23,9 +24,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.joml.Math.*;
 
+@SuppressWarnings("AlibabaLowerCamelCaseVariableNaming")
 @Mixin(AirplaneEntity.class)
 abstract public class MixinAirplaneEntity extends AircraftEntity {
 
@@ -34,7 +37,8 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
     @Unique
     private float immersive_war_thunder$playerYRot;
 
-    public MixinAirplaneEntity(EntityType<? extends AircraftEntity> entityType, Level world, boolean canExplodeOnCrash) {
+    public MixinAirplaneEntity(EntityType<? extends AircraftEntity> entityType, Level world,
+                               boolean canExplodeOnCrash) {
         super(entityType, world, canExplodeOnCrash);
     }
 
@@ -114,28 +118,33 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
 
     @Override
     protected void updateController() {
-        PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
+        Plane plane = immersive_war_thunder$getPlane();
         if (movementY != 0) {
             setEngineTarget(Math.max(0.0f, Math.min(1.0f, getEngineTarget() + 0.1f * movementY)));
         }
-        planePhysicsEngine.engine.setPower(getEnginePower() + getBoost() > 0 ? 1.5 : 0);
+        plane.engine.setPower(getEnginePower());
+        plane.booster.setPower(getBoost() > 0 ? 1 : 0);
+        plane.wheel.setBrake(getEngineTarget() == 0);
         // 获得乘客
         LivingEntity passenger = getControllingPassenger();
 
         // 无玩家控制
         if (!(passenger instanceof Player player)) {
             // 没有玩家 舵面归零
-            planePhysicsEngine.tail.setControl(0);
-            planePhysicsEngine.aileron.setControl(0);
-            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            plane.tail.input(0);
+            plane.aileron.input(0);
+            plane.fineTurningX.input(0);
+            plane.fineTurningY.input(0);
             return;
         }
         // 键盘有输入或自由视角
         if (movementX != 0 || movementZ != 0) {
             // 键盘控制
-            planePhysicsEngine.tail.setControl(-movementZ);
-            planePhysicsEngine.aileron.setControl(-movementX);
-            planePhysicsEngine.fineTuningTorque.setControl(0, 0);
+            plane.tail.input(-movementZ);
+            plane.aileron.input(-movementX);
+            plane.wheel.setTruingControl(-movementX);
+            plane.fineTurningX.input(0);
+            plane.fineTurningY.input(0);
             return;
         }
 
@@ -148,16 +157,18 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         float planeXRot = getXRot();
         float planeYRot = getYRot();
 
-        float deltaX = Mth.degreesDifference(planeXRot, immersive_war_thunder$playerXRot); //mc自带的pitch向下
-        float deltaY = Mth.degreesDifference(planeYRot, immersive_war_thunder$playerYRot);//mc自带的yaw向右
+        //mc自带的pitch向下
+        float deltaX = Mth.degreesDifference(planeXRot, immersive_war_thunder$playerXRot);
+        //mc自带的yaw向右
+        float deltaY = Mth.degreesDifference(planeYRot, immersive_war_thunder$playerYRot);
 
         double controlPitch = 0;
         double controlRoll = 0;
 
         float r = toRadians(getRoll());
-        controlPitch += (-deltaX * cos(r) + deltaY * sin(r)) / 45; //
+        controlPitch += (-deltaX * cos(r) + deltaY * sin(r)) / 45;
         controlPitch = Mth.clamp(controlPitch, -1, 1);
-        controlPitch *= 1 - Mth.clamp(abs(deltaX * sin(r) + deltaY * cos(r)) / 45, 0, 1);// 非pitch方向惩罚
+        controlPitch *= 1 - Mth.clamp(abs(deltaX * sin(r) + deltaY * cos(r)) / 45, 0, 1);
 
         double targetRoll = toDegrees(atan2(deltaY, -deltaX + 5));
         if (!Double.isFinite(targetRoll)) targetRoll = 0;
@@ -165,16 +176,15 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         controlRoll = Mth.clamp(controlRoll, -1, 1);
         controlRoll *= Mth.clamp(sqrt(deltaX * deltaX + deltaY * deltaY) / 30, 0.3, 1);
 
-        if (planePhysicsEngine.plane.isOnGround())
-            controlRoll = deltaY / 30;
+        if (plane.isOnGround()) controlRoll = deltaY / 30;
 
-        planePhysicsEngine.tail.setControl(controlPitch);
-        planePhysicsEngine.aileron.setControl(controlRoll);
-        planePhysicsEngine.fineTuningTorque.setControl(deltaX, deltaY);
-
+        plane.tail.input(controlPitch);
+        plane.aileron.input(controlRoll);
+        plane.fineTurningX.input(deltaX);
+        plane.fineTurningY.input(deltaY);
+        plane.wheel.setTruingControl(deltaY / 30);
 
     }
-
 
     @Override
     public void tick() {
@@ -182,27 +192,40 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         EngineVehicleAccessor engineVehicle = (EngineVehicleAccessor) this;
         engineVehicle.engineVehicle$tick();
 
-        PlanePhysicsEngine planePhysicsEngine = EngineManager.getPlane(uuid);
+        Plane plane = immersive_war_thunder$getPlane();
 
         // sync
-        planePhysicsEngine.plane.position = getPosition(1);
-        planePhysicsEngine.plane.velocity = getDeltaMovement();
-        planePhysicsEngine.plane.forwardDirection = toVec3d(getForwardDirection()).normalize();
-        planePhysicsEngine.plane.topDirection = toVec3d(getTopDirection()).normalize();
-        planePhysicsEngine.plane.roll = getRoll();
-        planePhysicsEngine.plane.pitch = getXRot();
-        planePhysicsEngine.plane.yaw = getYRot();
-        planePhysicsEngine.plane.setOnGround(onGround());
+        plane.position = getPosition(1);
+        plane.velocity = getDeltaMovement();
+        plane.forwardDirection = toVec3d(getForwardDirection()).normalize();
+        plane.topDirection = toVec3d(getTopDirection()).normalize();
+        plane.zRot = getRoll();
+        plane.xRot = getXRot();
+        plane.yRot = getYRot();
+        plane.setOnGround(onGround());
 
-        Torque torque = planePhysicsEngine.torque();
-        Vec3 force = planePhysicsEngine.force();
+        plane.update();
+        Torque torque = plane.torque;
+        Vec3 force = plane.force;
         //检查力是否有效
-        if (Double.isFinite(torque.xRot) && Double.isFinite(torque.yRot) && Double.isFinite(torque.zRot)
-                && Double.isFinite(force.x) && Double.isFinite(force.y) && Double.isFinite(force.z)) {
-            setXRot(getXRot() + (float) torque.xRot);
-            setYRot(getYRot() + (float) torque.yRot);
-            setZRot(getRoll() + (float) torque.zRot);
+        if (Double.isFinite(torque.x()) && Double.isFinite(torque.y()) && Double.isFinite(torque.z()) && Double.isFinite(force.x) && Double.isFinite(force.y) && Double.isFinite(force.z)) {
+            setXRot(getXRot() + (float) torque.x());
+            setYRot(getYRot() + (float) torque.y());
+            setZRot(getRoll() + (float) torque.z());
             setDeltaMovement(getDeltaMovement().add(force));
         }
+    }
+
+    @Unique
+    private Plane immersive_war_thunder$getPlane() {
+        if (!PlaneManager.hasPlane(uuid)) {
+            String name = "";
+            if (hasCustomName()) {
+                name = Objects.requireNonNull(getCustomName()).getString();
+            }
+            String type = BuiltInRegistries.ITEM.getKey(asItem()).toString();
+            PlaneManager.createPlane(uuid, name, type);
+        }
+        return PlaneManager.getPlane(uuid);
     }
 }
