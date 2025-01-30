@@ -4,6 +4,7 @@ import immersive_aircraft.entity.VehicleEntity;
 import immersive_aircraft.entity.misc.WeaponMount;
 import immersive_aircraft.entity.weapon.BulletWeapon;
 import immersive_aircraft.entity.weapon.HeavyCrossbow;
+import immersive_wt.config.Config;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,6 +21,7 @@ public abstract class HeavyCrossbowMixin extends BulletWeapon {
 
     @Override
     public void tick() {
-        cooldown -= 4/20f;
+        float rateOfFire = Config.config.get("heavyCrossbowRateOfFire").getAsFloat();
+        cooldown -= rateOfFire/20f;
     }
 }

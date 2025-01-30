@@ -1,4 +1,5 @@
 {
+  "heavyCrossbowRateOfFire": 10,
   "planes": {
     "default": {
       "tail": {

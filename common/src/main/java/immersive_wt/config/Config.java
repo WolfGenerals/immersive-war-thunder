@@ -16,7 +16,7 @@ public class Config {
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static final Path CONFIG_PATH = Path.of("config", ImmersiveWarThunder.MOD_ID + ".json");
     private static final URL DEFAULT_CONFIG = Config.class.getResource("/assets/immersive_wt/config.json");
-    private static @NotNull JsonObject config = new JsonObject();
+    public static @NotNull JsonObject config = new JsonObject();
 
     public static void load() {
         if (CONFIG_PATH.toFile().exists()) {
