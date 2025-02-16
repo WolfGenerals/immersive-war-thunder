@@ -8,6 +8,5 @@ public class ImmersiveWarThunderFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         KeyBindings.list.forEach(KeyBindingHelper::registerKeyBinding);
-
     }
 }

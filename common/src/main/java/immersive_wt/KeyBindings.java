@@ -20,4 +20,8 @@ public class KeyBindings {
     static {
         list.add(freeView);
     }
+
+    public static boolean getFreeView() {
+        return freeView.isDown();
+    }
 }
