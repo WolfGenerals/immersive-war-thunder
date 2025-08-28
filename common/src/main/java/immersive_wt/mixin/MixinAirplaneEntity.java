@@ -60,7 +60,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
         Matrix4f transform = getVehicleTransform();
 
         int size = getPassengers().size() - 1;
-        List<List<PositionDescriptor>> positions = getPassengerPositions();
+        List<List<PositionDescriptor>> positions = getVehicleData().getPassengerPositions();
         if (size < positions.size()) {
             int i = getPassengers().indexOf(passenger);
             if (i >= 0 && i < positions.get(size).size()) {
@@ -133,6 +133,7 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
             // 没有玩家 舵面归零
             plane.tail.input(0);
             plane.aileron.input(0);
+            plane.wheel.setTruingControl(0);
             plane.fineTurningX.input(0);
             plane.fineTurningY.input(0);
             return;

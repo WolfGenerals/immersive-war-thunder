@@ -2,11 +2,15 @@
   "heavyCrossbowRateOfFire": 10,
   "planes": {
     "default": {
+      "camera": {
+        "zoomX": 1.2,
+        "zoomY": 10.2
+      },
       "tail": {
         "speed": 6,
         "inertial": 0.8,
         "max": 1,
-        "min": -0.2
+        "min": -0.3
       },
       "aileron": {
         "speed": 6,
@@ -32,65 +36,67 @@
         "xRot": -5
       },
       "gravity": {
-        "gravity": 0.02,
+        "gravity": 0.04,
         "gravityTorque": 0.2
       },
       "engine": {
-        "thrust": 0.01
+        "thrust": 0.03
       },
       "booster": {
-        "thrust": 0.02
+        "thrust": 0.05
       },
       "wing": {
         "frictionForward": 0.01,
         "frictionOtherSide": 0.2
       }
     },
+
     "immersive_aircraft:biplane": {
       "tail": {
-        "speed": 6,
-        "inertial": 0.8,
-        "max": 1,
-        "min": -0.2
+        "speed": 5,
+        "inertial": 0.7,
+        "max": 1.0,
+        "min": -0.3
       },
       "aileron": {
-        "speed": 6,
-        "inertial": 0.8,
+        "speed": 5,
+        "inertial": 0.7,
         "max": 1,
         "min": -1
       },
       "fineTurningX": {
-        "speed": 0.1,
+        "speed": 0.15,
         "inertial": 0,
         "max": 1,
         "min": -1
       },
       "fineTurningY": {
-        "speed": 0.1,
+        "speed": 0.15,
         "inertial": 0,
         "max": 1,
         "min": -1
       },
       "wheel": {
-        "friction": 0.01,
+        "friction": 0.02,
         "turning": 4,
         "xRot": -5
       },
       "gravity": {
-        "gravity": 0.02,
-        "gravityTorque": 0.2
+        "gravity": 0.04,
+        "gravityTorque": 0.18
       },
       "engine": {
-        "thrust": 0.01
+        "thrust": 0.025
       },
       "booster": {
-        "thrust": 0.02
+        "thrust": 0.1
       },
       "wing": {
-        "frictionForward": 0.01,
-        "frictionOtherSide": 0.2
+        "frictionForward": 0.012,
+        "frictionOtherSide": 0.25
       }
     },
+
     "Me163": {
       "tail": {
         "speed": 6,
@@ -122,7 +128,7 @@
         "xRot": -5
       },
       "gravity": {
-        "gravity": 0.02,
+        "gravity": 0.04,
         "gravityTorque": 0.2
       },
       "engine": {
@@ -133,6 +139,420 @@
       },
       "wing": {
         "frictionForward": 0.002,
+        "frictionOtherSide": 0.3
+      }
+    },
+
+    "aviator_dream:douglas_dc1": {
+      "tail": {
+        "speed": 4,
+        "inertial": 0.85,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 4,
+        "inertial": 0.85,
+        "max": 1.0,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.02,
+        "turning": 3.5,
+        "xRot": -3
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.17
+      },
+      "engine": {
+        "thrust": 0.0275
+      },
+      "booster": {
+        "thrust": 0.07
+      },
+      "wing": {
+        "frictionForward": 0.013,
+        "frictionOtherSide": 0.25
+      }
+    },
+
+    "aviator_dream:douglas_dc2": {
+      "tail": {
+        "speed": 4.2,
+        "inertial": 0.83,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 4.2,
+        "inertial": 0.83,
+        "max": 1.1,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.02,
+        "turning": 3.5,
+        "xRot": -3
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.16
+      },
+      "engine": {
+        "thrust": 0.029
+      },
+      "booster": {
+        "thrust": 0.07
+      },
+      "wing": {
+        "frictionForward": 0.0125,
+        "frictionOtherSide": 0.25
+      }
+    },
+
+    "aviator_dream:douglas_c47": {
+      "tail": {
+        "speed": 4,
+        "inertial": 0.85,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 4,
+        "inertial": 0.85,
+        "max": 1.1,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.025,
+        "turning": 3,
+        "xRot": -3
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.16
+      },
+      "engine": {
+        "thrust": 0.03
+      },
+      "booster": {
+        "thrust": 0.075
+      },
+      "wing": {
+        "frictionForward": 0.012,
+        "frictionOtherSide": 0.25
+      }
+    },
+
+    "aviator_dream:lockheed_l1049g": {
+      "tail": {
+        "speed": 4.5,
+        "inertial": 0.88,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 4.5,
+        "inertial": 0.88,
+        "max": 1.1,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.03,
+        "turning": 3,
+        "xRot": -2
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.15
+      },
+      "engine": {
+        "thrust": 0.04
+      },
+      "booster": {
+        "thrust": 0.09
+      },
+      "wing": {
+        "frictionForward": 0.014,
+        "frictionOtherSide": 0.26
+      }
+    },
+
+    "aviator_dream:fokker_fviib3m": {
+      "tail": {
+        "speed": 4,
+        "inertial": 0.8,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 4,
+        "inertial": 0.8,
+        "max": 1.1,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.02,
+        "turning": 3.5,
+        "xRot": -4
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.17
+      },
+      "engine": {
+        "thrust": 0.037
+      },
+      "booster": {
+        "thrust": 0.06
+      },
+      "wing": {
+        "frictionForward": 0.013,
+        "frictionOtherSide": 0.24
+      }
+    },
+
+    "aviator_dream:fokker_fviia": {
+      "tail": {
+        "speed": 3.5,
+        "inertial": 0.8,
+        "max": 1,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 3.5,
+        "inertial": 0.8,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.1,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.1,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.02,
+        "turning": 3.5,
+        "xRot": -4
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.17
+      },
+      "engine": {
+        "thrust": 0.025
+      },
+      "booster": {
+        "thrust": 0.05
+      },
+      "wing": {
+        "frictionForward": 0.012,
+        "frictionOtherSide": 0.23
+      }
+    },
+
+    "aviator_dream:dehavilland_dh106": {
+      "tail": {
+        "speed": 5,
+        "inertial": 0.85,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 5,
+        "inertial": 0.85,
+        "max": 1.2,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.12,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.025,
+        "turning": 3,
+        "xRot": -1
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.16
+      },
+      "engine": {
+        "thrust": 0.061
+      },
+      "booster": {
+        "thrust": 0.1
+      },
+      "wing": {
+        "frictionForward": 0.015,
+        "frictionOtherSide": 0.27
+      }
+    },
+
+    "man_of_many_planes:scarlet_biplane": {
+      "tail": {
+        "speed": 6,
+        "inertial": 0.7,
+        "max": 1.0,
+        "min": -0.4
+      },
+      "aileron": {
+        "speed": 6,
+        "inertial": 0.7,
+        "max": 1.2,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.15,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.15,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.02,
+        "turning": 4,
+        "xRot": -5
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.18
+      },
+      "engine": {
+        "thrust": 0.032
+      },
+      "booster": {
+        "thrust": 0.06
+      },
+      "wing": {
+        "frictionForward": 0.011,
+        "frictionOtherSide": 0.27
+      }
+    },
+
+    "man_of_many_planes:economy_plane": {
+      "tail": {
+        "speed": 3.8,
+        "inertial": 0.9,
+        "max": 1.0,
+        "min": -0.3
+      },
+      "aileron": {
+        "speed": 3.8,
+        "inertial": 0.9,
+        "max": 1.0,
+        "min": -1
+      },
+      "fineTurningX": {
+        "speed": 0.1,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "fineTurningY": {
+        "speed": 0.1,
+        "inertial": 0,
+        "max": 1,
+        "min": -1
+      },
+      "wheel": {
+        "friction": 0.03,
+        "turning": 2.5,
+        "xRot": -5
+      },
+      "gravity": {
+        "gravity": 0.04,
+        "gravityTorque": 0.2
+      },
+      "engine": {
+        "thrust": 0.025
+      },
+      "booster": {
+        "thrust": 0.05
+      },
+      "wing": {
+        "frictionForward": 0.015,
         "frictionOtherSide": 0.3
       }
     }
