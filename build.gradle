@@ -17,8 +17,10 @@ subprojects {
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
         // The following line declares the mojmap mappings, you may use other mappings as well
-        mappings loom.officialMojangMappings()
-        // The following line declares the yarn mappings you may select this one as well.
+        mappings loom.layered() {
+            officialMojangMappings()
+            parchment("org.parchmentmc.data:parchment-${rootProject.parchment_version}@zip")
+        }        // The following line declares the yarn mappings you may select this one as well.
         // mappings "net.fabricmc:yarn:1.20.1+build.10:v2"
     }
 }
@@ -49,7 +51,7 @@ allprojects {
 
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
-        options.release = 17
+        options.release = 21
     }
 
     java {
@@ -57,16 +59,18 @@ allprojects {
     }
 }
 
+
 // 定义复制文件的任务
 task copyOutputFiles(type: Copy) {
     dependsOn 'fabric:build'
-    dependsOn 'forge:build'
-    from 'fabric/build/libs', 'forge/build/libs' // 假设子项目的输出文件在subproject/build/libs目录
+    dependsOn 'neoforge:build'
+    from 'fabric/build/libs', 'neoforge/build/libs' // 假设子项目的输出文件在subproject/build/libs目录
     // 指定复制到的目标目录
     into 'build/mods' // 将文件复制到destination_directory目录
 }
 
 task publishing {
     dependsOn 'clean'
+    delete 'build/mods', 'fabric/build/libs', 'neoforge/build/libs'
     finalizedBy 'copyOutputFiles'
 }

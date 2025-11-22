@@ -40,12 +40,12 @@ public abstract class CameraMixin {
                     zoomY = cameraConfigObject.get("zoomY").getAsFloat();
                 }
             }
-            move(-getMaxZoom(airplane.getZoom())*zoomX, getMaxZoom(airplane.getZoom())*zoomY, 0.0);
+            move(-getMaxZoom((float) airplane.getZoom()) * zoomX, getMaxZoom((float) airplane.getZoom()) * zoomY, 0.0F);
         }
     }
 
     @Shadow
-    protected abstract void move(double x, double y, double z);
+    protected abstract void move(float zoom, float dy, float dx);
 
     @Shadow
     public abstract Vec3 getPosition();
@@ -53,5 +53,5 @@ public abstract class CameraMixin {
     protected abstract void setPosition(Vec3 pos);
 
     @Shadow
-    protected abstract double getMaxZoom(double desiredCameraDistance);
+    protected abstract float getMaxZoom(float maxZoom);
 }

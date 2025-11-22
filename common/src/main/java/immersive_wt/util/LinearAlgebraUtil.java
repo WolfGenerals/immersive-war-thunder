@@ -60,7 +60,7 @@ public class LinearAlgebraUtil {
 
         // If the point is behind the camera, return an off-screen position
         if (relativePos.z() <= 0) {
-            return new Vector3f(-1, -1, -1);
+            return null;
         }
 
         // Get screen dimensions

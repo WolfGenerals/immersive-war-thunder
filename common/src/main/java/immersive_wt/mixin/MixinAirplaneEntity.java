@@ -71,11 +71,12 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
                 float z = positionDescriptor.z();
 
                 //animals are thicc
-                if (passenger instanceof Animal) {
-                    z += 0.2f;
-                }
+                // Passenger offset
+                Vec3 attachmentPoint = passenger.getVehicleAttachmentPoint(this);
+                x -= (float) attachmentPoint.x;
+                y -= (float) attachmentPoint.y;
+                z -= (float) attachmentPoint.z;
 
-                y += (float) passenger.getMyRidingOffset();
 
                 Vector4f worldPosition = transformPosition(transform, x, y, z);
                 passenger.setPos(worldPosition.x, worldPosition.y, worldPosition.z);
@@ -111,10 +112,10 @@ abstract public class MixinAirplaneEntity extends AircraftEntity {
     protected void updateVelocity() {
     }
 
-    @Override
-    protected float getGravity() {
-        return -1;
-    }
+//    @Override
+//    public float getGravity() {
+//        return -1;
+//    }
 
     @Override
     protected void updateController() {
